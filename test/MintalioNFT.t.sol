@@ -23,10 +23,7 @@ contract MintalioNft is Test {
         string memory expectedUri = "some-uri.com";
         string memory actualUri = mintalioNft.uri(0);
 
-        assert(
-            keccak256(abi.encodePacked(expectedUri)) ==
-                keccak256(abi.encodePacked(actualUri))
-        );
+        assert(keccak256(abi.encodePacked(expectedUri)) == keccak256(abi.encodePacked(actualUri)));
     }
 
     function testCanMintAndHaveABalance() public {
@@ -35,9 +32,6 @@ contract MintalioNft is Test {
 
         assert(mintalioNft.balanceOf(USER, 0) == 1);
 
-        assert(
-            keccak256(abi.encodePacked(mintalioNft.uri(0))) ==
-                keccak256(abi.encodePacked(PUG_URI))
-        );
+        assert(keccak256(abi.encodePacked(mintalioNft.uri(0))) == keccak256(abi.encodePacked(PUG_URI)));
     }
 }
