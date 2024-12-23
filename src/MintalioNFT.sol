@@ -14,8 +14,9 @@ contract MintalioNFT is ERC1155 {
     NFT[] public nfts;
 
     mapping(uint256 => address) public nftOwners;
+    mapping(uint256 => string) private _customUris;
 
-    constructor(string memory uri) ERC1155(uri) {
+    constructor(string memory _uri) ERC1155(_uri) {
         owner = msg.sender;
     }
 
@@ -24,13 +25,21 @@ contract MintalioNFT is ERC1155 {
         _;
     }
 
-    function mint(address to, bytes memory data) public onlyOwner {
+    function uri(uint256 tokenId) public view override returns (string memory) {
+        if (bytes(_customUris[tokenId]).length > 0) {
+            return _customUris[tokenId];
+        }
+        return super.uri(tokenId);
+    }
+
+    function mint(address to, bytes memory data) public {
         uint256 id = nfts.length;
 
         nfts.push(NFT(id, 0));
         nftOwners[id] = to;
 
         _mint(to, id, 1, data);
+        _customUris[id] = string(data);
     }
 
     function safeTransferFrom(
@@ -39,7 +48,7 @@ contract MintalioNFT is ERC1155 {
         uint256 id,
         uint256 amount,
         bytes memory data
-    ) public virtual override onlyOwner {
+    ) public virtual override {
         amount = 1;
         require(
             from == nftOwners[id],
