@@ -10,6 +10,8 @@ struct NFT {
 }
 
 contract MintalioNFT is ERC1155 {
+    //TODO: consider: points can be the nfts, if someone owns 1 NFT with id 1 they have 1 point and \
+    //if someone owns 2 NFTs with id 1 they have 2 points
     address public owner;
     NFT[] public nfts;
 
@@ -42,13 +44,18 @@ contract MintalioNFT is ERC1155 {
         _customUris[id] = string(data);
     }
 
-    function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data)
-        public
-        virtual
-        override
-    {
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) public virtual override {
         amount = 1;
-        require(from == nftOwners[id], "ERC1155: caller is not owner nor approved");
+        require(
+            from == nftOwners[id],
+            "ERC1155: caller is not owner nor approved"
+        );
         super.safeTransferFrom(from, to, id, amount, data);
         if (amount > 0) {
             nftOwners[id] = to;
