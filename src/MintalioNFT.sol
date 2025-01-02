@@ -65,4 +65,9 @@ contract MintalioNFT is ERC1155 {
     function addPoints(uint256 id, uint256 points) public onlyOwner {
         nfts[id].points += points;
     }
+
+    function withdrawPoints(uint256 id, uint256 points) public onlyOwner {
+        require(nfts[id].points >= points, "Not enough points");
+        nfts[id].points -= points;
+    }
 }
