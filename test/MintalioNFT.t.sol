@@ -5,6 +5,8 @@ import "forge-std/Test.sol";
 import "./../script/DeployMintalioNft.s.sol";
 import "./../src/MintalioNFT.sol";
 
+// import {Console} from "lib/forge-std/src";
+
 contract MintalioNft is Test {
     DeployMintalioNft public deployer;
     address public deployerAddr;
@@ -56,5 +58,29 @@ contract MintalioNft is Test {
         (id, points) = mintalioNft.nfts(0);
 
         assert(points == 1 && id == 0);
+    }
+
+    function testCanTakePoints() public {
+        vm.prank(USER);
+        mintalioNft.mint(USER, bytes(PUG_URI));
+
+        (uint256 id, uint256 points) = mintalioNft.nfts(0);
+        assert(points == 0 && id == 0);
+
+        vm.prank(deployerAddr);
+
+        mintalioNft.addPoints(0, 1);
+        (id, points) = mintalioNft.nfts(0);
+
+        assert(points == 1 && id == 0);
+
+        console.log("Points before withdrawal: ", points);
+
+        vm.prank(deployerAddr);
+
+        mintalioNft.withdrawPoints(0, 1);
+        (id, points) = mintalioNft.nfts(0);
+
+        assert(points == 0 && id == 0);
     }
 }
