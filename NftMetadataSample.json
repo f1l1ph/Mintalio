@@ -1,0 +1,19 @@
+{
+  "name": "Angry cat",
+  "description": "Scariest cat in the universe collecting loaylity points to save money and upgrade level.",
+  "image": "https://ipfs-example.com/images/scary-cat.png",
+  "attributes": [
+    {
+      "trait_type": "Points",
+      "value": 69
+    },
+    {
+      "trait_type": "Total_points",
+      "value": 420
+    },
+    {
+      "trait_type": "Level",
+      "value": "Legendary"
+    }
+  ]
+}
