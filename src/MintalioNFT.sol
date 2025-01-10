@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+// import {console} from "forge-std/console.sol";
 
 struct NFT {
     uint256 id;
@@ -10,7 +11,7 @@ struct NFT {
 }
 
 contract MintalioNFT is ERC1155 {
-    //TODO: consider: points can be the nfts, if someone owns 1 NFT with id 1 they have 1 point and \
+    //TODO: consider: points can be the nfts, if someone owns 1 NFT with id 1 they have 1 point and
     //if someone owns 2 NFTs with id 1 they have 2 points
     address public owner;
     NFT[] public nfts;
@@ -35,7 +36,8 @@ contract MintalioNFT is ERC1155 {
     }
 
     function mint(address to, bytes memory data) public {
-        uint256 id = nfts.length;
+        uint256 id = nfts.length + 1;
+        // console.log("Minting NFT with id: %d", id);
 
         nfts.push(NFT(id, 0));
         nftOwners[id] = to;

@@ -33,14 +33,29 @@ contract MintalioNft is Test {
         );
     }
 
+    function testUriIsCorrect2() public {
+        string memory expectedUri = "some-uri.com";
+
+        //minting a new NFT
+        vm.prank(USER);
+        mintalioNft.mint(USER, bytes(PUG_URI));
+
+        string memory actualUri = mintalioNft.uri(1);
+
+        assert(
+            keccak256(abi.encodePacked(expectedUri)) !=
+                keccak256(abi.encodePacked(actualUri))
+        );
+    }
+
     function testCanMintAndHaveABalance() public {
         vm.prank(USER);
         mintalioNft.mint(USER, bytes(PUG_URI));
 
-        assert(mintalioNft.balanceOf(USER, 0) == 1);
+        assert(mintalioNft.balanceOf(USER, 1) == 1);
 
         assert(
-            keccak256(abi.encodePacked(mintalioNft.uri(0))) ==
+            keccak256(abi.encodePacked(mintalioNft.uri(1))) ==
                 keccak256(abi.encodePacked(PUG_URI))
         );
     }
@@ -50,14 +65,14 @@ contract MintalioNft is Test {
         mintalioNft.mint(USER, bytes(PUG_URI));
 
         (uint256 id, uint256 points) = mintalioNft.nfts(0);
-        assert(points == 0 && id == 0);
+        assert(points == 0 && id == 1);
 
         vm.prank(deployerAddr); // invoking the owner because addPoints is onlyOwner
 
         mintalioNft.addPoints(0, 1);
         (id, points) = mintalioNft.nfts(0);
 
-        assert(points == 1 && id == 0);
+        assert(points == 1 && id == 1);
     }
 
     function testCanTakePoints() public {
@@ -65,14 +80,14 @@ contract MintalioNft is Test {
         mintalioNft.mint(USER, bytes(PUG_URI));
 
         (uint256 id, uint256 points) = mintalioNft.nfts(0);
-        assert(points == 0 && id == 0);
+        assert(points == 0 && id == 1);
 
         vm.prank(deployerAddr);
 
         mintalioNft.addPoints(0, 1);
         (id, points) = mintalioNft.nfts(0);
 
-        assert(points == 1 && id == 0);
+        assert(points == 1 && id == 1);
 
         console.log("Points before withdrawal: ", points);
 
@@ -81,6 +96,6 @@ contract MintalioNft is Test {
         mintalioNft.withdrawPoints(0, 1);
         (id, points) = mintalioNft.nfts(0);
 
-        assert(points == 0 && id == 0);
+        assert(points == 0 && id == 1);
     }
 }
