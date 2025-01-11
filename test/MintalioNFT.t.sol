@@ -14,7 +14,7 @@ contract MintalioNft is Test {
 
     address public USER = makeAddr("user");
 
-    string public constant PUG_URI =
+    string public constant PUG_URI = //random URI for penguins NFT
         "ipfs://bafybeig37ioir76s7mg5oobetncojcm3c3hxasyd4rvid4jqhy4gkaheg4/?filename=0-PUG.json";
 
     function setUp() public {
@@ -34,7 +34,7 @@ contract MintalioNft is Test {
     }
 
     function testUriIsCorrect2() public {
-        string memory expectedUri = "some-uri.com";
+        string memory expectedUri = "some-uri.com2";
 
         //minting a new NFT
         vm.prank(USER);
@@ -64,38 +64,38 @@ contract MintalioNft is Test {
         vm.prank(USER); // invoking user because users can mint
         mintalioNft.mint(USER, bytes(PUG_URI));
 
-        (uint256 id, uint256 points) = mintalioNft.nfts(0);
-        assert(points == 0 && id == 1);
+        (uint256 id, uint256 points, uint256 totalPoints) = mintalioNft.nfts(1);
+        assert(points == 0 && id == 1 && totalPoints == 0);
 
         vm.prank(deployerAddr); // invoking the owner because addPoints is onlyOwner
 
-        mintalioNft.addPoints(0, 1);
-        (id, points) = mintalioNft.nfts(0);
+        mintalioNft.addPoints(1, 1);
+        (id, points, totalPoints) = mintalioNft.nfts(1);
 
-        assert(points == 1 && id == 1);
+        assert(points == 1 && id == 1 && totalPoints == 1);
     }
 
     function testCanTakePoints() public {
         vm.prank(USER);
         mintalioNft.mint(USER, bytes(PUG_URI));
 
-        (uint256 id, uint256 points) = mintalioNft.nfts(0);
-        assert(points == 0 && id == 1);
+        (uint256 id, uint256 points, uint256 totalPoints) = mintalioNft.nfts(1);
+        assert(points == 0 && id == 1 && totalPoints == 0);
 
         vm.prank(deployerAddr);
 
-        mintalioNft.addPoints(0, 1);
-        (id, points) = mintalioNft.nfts(0);
+        mintalioNft.addPoints(1, 1);
+        (id, points, totalPoints) = mintalioNft.nfts(1);
 
-        assert(points == 1 && id == 1);
+        assert(points == 1 && id == 1 && totalPoints == 1);
 
         console.log("Points before withdrawal: ", points);
 
         vm.prank(deployerAddr);
 
-        mintalioNft.withdrawPoints(0, 1);
-        (id, points) = mintalioNft.nfts(0);
+        mintalioNft.withdrawPoints(1, 1);
+        (id, points, totalPoints) = mintalioNft.nfts(1);
 
-        assert(points == 0 && id == 1);
+        assert(points == 0 && id == 1 && totalPoints == 1);
     }
 }
