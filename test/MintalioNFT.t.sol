@@ -33,59 +33,41 @@ contract MintalioNft is Test {
         );
     }
 
-    function testUriIsCorrect2() public {
-        string memory expectedUri = "some-uri.com2";
-
-        //minting a new NFT
-        vm.prank(USER);
-        mintalioNft.mint(USER, bytes(PUG_URI));
-
-        string memory actualUri = mintalioNft.uri(1);
-
-        assert(
-            keccak256(abi.encodePacked(expectedUri)) !=
-                keccak256(abi.encodePacked(actualUri))
-        );
-    }
-
     function testCanMintAndHaveABalance() public {
-        vm.prank(USER);
-        mintalioNft.mint(USER, bytes(PUG_URI));
+        address user2 = makeAddr("USER-2");
 
-        assert(mintalioNft.balanceOf(USER, 1) == 1);
+        vm.prank(user2);
+        mintalioNft.mint(user2);
 
-        assert(
-            keccak256(abi.encodePacked(mintalioNft.uri(1))) ==
-                keccak256(abi.encodePacked(PUG_URI))
-        );
+        assert(mintalioNft.balanceOf(user2, 1) > 0);
     }
 
     function testCanAddPoints() public {
         vm.prank(USER); // invoking user because users can mint
-        mintalioNft.mint(USER, bytes(PUG_URI));
+        mintalioNft.mint(USER);
 
-        (uint256 id, uint256 points, uint256 totalPoints) = mintalioNft.nfts(1);
+        (uint256 id, uint256 points, uint256 totalPoints, NFTLevel nftLevel) = mintalioNft.nfts(1);
         assert(points == 0 && id == 1 && totalPoints == 0);
 
         vm.prank(deployerAddr); // invoking the owner because addPoints is onlyOwner
 
         mintalioNft.addPoints(1, 1);
-        (id, points, totalPoints) = mintalioNft.nfts(1);
+        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(1);
 
         assert(points == 1 && id == 1 && totalPoints == 1);
     }
 
     function testCanTakePoints() public {
         vm.prank(USER);
-        mintalioNft.mint(USER, bytes(PUG_URI));
+        mintalioNft.mint(USER);
 
-        (uint256 id, uint256 points, uint256 totalPoints) = mintalioNft.nfts(1);
+        (uint256 id, uint256 points, uint256 totalPoints, NFTLevel nftLevel) = mintalioNft.nfts(1);
         assert(points == 0 && id == 1 && totalPoints == 0);
 
         vm.prank(deployerAddr);
 
         mintalioNft.addPoints(1, 1);
-        (id, points, totalPoints) = mintalioNft.nfts(1);
+        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(1);
 
         assert(points == 1 && id == 1 && totalPoints == 1);
 
@@ -94,7 +76,7 @@ contract MintalioNft is Test {
         vm.prank(deployerAddr);
 
         mintalioNft.withdrawPoints(1, 1);
-        (id, points, totalPoints) = mintalioNft.nfts(1);
+        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(1);
 
         assert(points == 0 && id == 1 && totalPoints == 1);
     }

@@ -14,31 +14,71 @@ struct NFT {
     uint256 id;
     uint256 points;
     uint256 totalPoints;
+    NFTLevel level;
+}
+enum NFTLevel {
+    BRONZE, //0
+    SILVER, //1
+    GOLD, //2
+    PLATINUM, //3
+    DIAMOND, //4
+    LEGENDARY, //5
+    MYTHIC, //6
+    GODLY, //7
+    IMMORTAL, //8
+    DIVINE, //9
+    CELESTIAL, //10
+    COSMIC, //11
+    ETERNAL, //12
+    INFINITE, //13
+    OMNIPOTENT //14
 }
 
-enum NFTLevel {
-    BRONZE,
-    SILVER,
-    GOLD,
-    PLATINUM,
-    DIAMOND,
-    LEGENDARY,
-    MYTHIC,
-    GODLY,
-    IMMORTAL,
-    DIVINE,
-    CELESTIAL,
-    COSMIC,
-    ETERNAL,
-    INFINITE,
-    OMNIPOTENT
-}
+// Points required for each level
+// mapping(NFTLevel => uint256) levelPoints = {
+//     NFTLevel.BRONZE: 0,
+//     NFTLevel.SILVER: 100,
+//     NFTLevel.GOLD: 250,
+//     NFTLevel.PLATINUM: 500,
+//     NFTLevel.DIAMOND: 1000,
+//     NFTLevel.LEGENDARY: 2000,
+//     NFTLevel.MYTHIC: 4000,
+//     NFTLevel.GODLY: 8000,
+//     NFTLevel.IMMORTAL: 16000,
+//     NFTLevel.DIVINE: 32000,
+//     NFTLevel.CELESTIAL: 64000,
+//     NFTLevel.COSMIC: 128000,
+//     NFTLevel.ETERNAL: 256000,
+//     NFTLevel.INFINITE: 512000,
+//     NFTLevel.OMNIPOTENT: 1024000
+// };
 
 contract MintalioNFT is ERC1155 {
+    uint256[15] private levelThresholds = [
+        //this is here to estimate the level of the NFT
+        0, // BRONZE
+        100, // SILVER
+        250, // GOLD
+        500, // PLATINUM
+        1000, // DIAMOND
+        2000, // LEGENDARY
+        4000, // MYTHIC
+        8000, // GODLY
+        16000, // IMMORTAL
+        32000, // DIVINE
+        64000, // CELESTIAL
+        128000, // COSMIC
+        256000, // ETERNAL
+        512000, // INFINITE
+        1024000 // OMNIPOTENT
+    ];
+
+    //fungible tokens on id: 0
     error Not_Contract_Owner();
     error Not_NFT_Owner();
     error Not_Enough_Points();
     error Invalid_NFT_Id(uint256 id);
+    //TODO: emit events
 
     //TODO: consider: points can be the nfts, if someone owns 1 NFT with id 1 they have 1 point and
     //if someone owns 2 NFTs with id 1 they have 2 points
@@ -49,7 +89,12 @@ contract MintalioNFT is ERC1155 {
     mapping(uint256 => address) private _nftOwners;
     mapping(uint256 => string) private _customUris;
 
+    bytes private dataURI; //URI template
+
+    //make only owner setter
+
     constructor(string memory _uri) ERC1155(_uri) {
+        dataURI = bytes(_uri);
         _owner = msg.sender;
     }
 
@@ -60,14 +105,14 @@ contract MintalioNFT is ERC1155 {
         _;
     }
 
-    function mint(address to, bytes memory data) public {
+    function mint(address to) public {
         uint256 id = _nfts.length + 1;
 
-        _nfts.push(NFT(id, 0, 0));
+        _nfts.push(NFT(id, 0, 0, NFTLevel.BRONZE));
         _nftOwners[id] = to;
 
-        _mint(to, id, 1, data);
-        _customUris[id] = string(data);
+        _mint(to, id, 1, dataURI);
+        _customUris[id] = string(dataURI);
     }
 
     function addPoints(uint256 id, uint256 points) public onlyOwner {
@@ -75,6 +120,9 @@ contract MintalioNFT is ERC1155 {
             revert Invalid_NFT_Id(id);
         }
         id = id - 1;
+
+        //update level
+        _nfts[id].level = getNFTLevel(_nfts[id].totalPoints + points);
 
         _nfts[id].points += points;
         _nfts[id].totalPoints += points;
@@ -93,12 +141,23 @@ contract MintalioNFT is ERC1155 {
         _nfts[id].points -= points;
     }
 
-    function nfts(uint256 id) public view returns (uint256, uint256, uint256) {
+    //add function trade points
+    //when users trade points, total points are not increased or decreased
+
+    function nfts(
+        uint256 id
+    ) public view returns (uint256, uint256, uint256, NFTLevel) {
         if (id <= 0 || id > _nfts.length) {
             revert Invalid_NFT_Id(id);
         }
         id = id - 1;
-        return (_nfts[id].id, _nfts[id].points, _nfts[id].totalPoints);
+
+        return (
+            _nfts[id].id,
+            _nfts[id].points,
+            _nfts[id].totalPoints,
+            _nfts[id].level
+        );
     }
 
     function owner() public view returns (address) {
@@ -110,15 +169,22 @@ contract MintalioNFT is ERC1155 {
     }
 
     function get_points(uint256 id) public view returns (uint256) {
+        if (id <= 0 || id > _nfts.length) {
+            revert Invalid_NFT_Id(id);
+        }
+        id = id - 1;
         return _nfts[id].points;
     }
 
     function get_total_points(uint256 id) public view returns (uint256) {
+        if (id <= 0 || id > _nfts.length) {
+            revert Invalid_NFT_Id(id);
+        }
+        id = id - 1;
         return _nfts[id].totalPoints;
     }
 
     function uri(uint256 tokenId) public view override returns (string memory) {
-        //TODO: ask about this thang
         if (bytes(_customUris[tokenId]).length > 0) {
             return _customUris[tokenId];
         }
@@ -130,6 +196,10 @@ contract MintalioNFT is ERC1155 {
         address account,
         uint256 id
     ) public view override returns (uint256) {
+        if (id < 0 || id > _nfts.length) {
+            revert Invalid_NFT_Id(id);
+        }
+
         return super.balanceOf(account, id);
     }
 
@@ -147,5 +217,14 @@ contract MintalioNFT is ERC1155 {
         amount = 1;
         super.safeTransferFrom(from, to, id, amount, data);
         _nftOwners[id] = to; //consider saving owner metadata, ask about if this is good practice
+    }
+
+    function getNFTLevel(uint256 totalPoints) private view returns (NFTLevel) {
+        for (uint256 i = 14; i > 0; i--) {
+            if (totalPoints >= levelThresholds[i]) {
+                return NFTLevel(i);
+            }
+        }
+        return NFTLevel.BRONZE;
     }
 }
