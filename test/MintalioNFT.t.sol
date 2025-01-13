@@ -80,4 +80,14 @@ contract MintalioNft is Test {
 
         assert(points == 0 && id == 1 && totalPoints == 1);
     }
+
+    function testHaveLevel() public{
+        vm.prank(USER);
+        mintalioNft.mint(USER);
+
+        (uint256 id, uint256 points, uint256 totalPoints, NFTLevel nftLevel) = mintalioNft.nfts(1);
+
+        assert(nftLevel == NFTLevel.BRONZE);
+        assert(points == 0 && id == 1 && totalPoints == 0);
+    }
 }
