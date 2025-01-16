@@ -90,4 +90,20 @@ contract MintalioNft is Test {
         assert(nftLevel == NFTLevel.BRONZE);
         assert(points == 0 && id == 1 && totalPoints == 0);
     }
+
+    function testHaveHigherLevel() public{
+        vm.prank(USER);
+        mintalioNft.mint(USER);
+
+        (uint256 id, uint256 points, uint256 totalPoints, NFTLevel nftLevel) = mintalioNft.nfts(1);
+        assert(nftLevel == NFTLevel.BRONZE);
+        assert(points == 0 && id == 1 && totalPoints == 0);
+
+        vm.prank(deployerAddr);
+        mintalioNft.addPoints(1, 100);
+
+        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(1);
+        assert(nftLevel == NFTLevel.SILVER);
+        assert(points == 100 && id == 1 && totalPoints == 100);
+    }
 }
