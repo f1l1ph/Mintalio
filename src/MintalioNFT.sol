@@ -80,18 +80,27 @@ contract MintalioNFT is ERC1155 {
     error Invalid_NFT_Id(uint256 id);
     //TODO: emit events
 
+    event Mint(address indexed to);
+    event AddPoints(uint256 indexed id, uint256 points);
+    event WithdrawPoints(uint256 indexed id, uint256 points);
+    event TransferNft(
+        address indexed from,
+        address indexed to,
+        uint256 id,
+        uint256 value
+    );
+
     //TODO: consider: points can be the nfts, if someone owns 1 NFT with id 1 they have 1 point and
     //if someone owns 2 NFTs with id 1 they have 2 points
 
-    address private _owner;
+    address private _owner; // main owner of the contract
+    // address[] private _admin; // admin of the contract, owner can set admins TODO: later
     NFT[] private _nfts;
 
     mapping(uint256 => address) private _nftOwners;
     mapping(uint256 => string) private _customUris;
 
     bytes private dataURI; //URI template
-
-    //make only owner setter
 
     constructor(string memory _uri) ERC1155(_uri) {
         dataURI = bytes(_uri);
@@ -113,6 +122,8 @@ contract MintalioNFT is ERC1155 {
 
         _mint(to, id, 1, dataURI);
         _customUris[id] = string(dataURI);
+
+        emit Mint(to);
     }
 
     function addPoints(uint256 id, uint256 points) public onlyOwner {
@@ -126,6 +137,8 @@ contract MintalioNFT is ERC1155 {
 
         _nfts[id].points += points;
         _nfts[id].totalPoints += points;
+
+        emit AddPoints(id, points);
     }
 
     function withdrawPoints(uint256 id, uint256 points) public onlyOwner {
@@ -139,6 +152,8 @@ contract MintalioNFT is ERC1155 {
         }
 
         _nfts[id].points -= points;
+
+        emit WithdrawPoints(id, points);
     }
 
     //add function trade points
@@ -217,6 +232,8 @@ contract MintalioNFT is ERC1155 {
         amount = 1;
         super.safeTransferFrom(from, to, id, amount, data);
         _nftOwners[id] = to; //consider saving owner metadata, ask about if this is good practice
+
+        emit TransferNft(from, to, id, amount);
     }
 
     function getNFTLevel(uint256 totalPoints) private view returns (NFTLevel) {
