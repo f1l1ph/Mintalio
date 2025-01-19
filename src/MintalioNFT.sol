@@ -74,12 +74,15 @@ contract MintalioNFT is ERC1155 {
     ];
 
     //fungible tokens on id: 0
+
+    //errors
     error Not_Contract_Owner();
+    error Not_Contract_Admin();
     error Not_NFT_Owner();
     error Not_Enough_Points();
     error Invalid_NFT_Id(uint256 id);
-    //TODO: emit events
 
+    //events
     event Mint(address indexed to);
     event AddPoints(uint256 indexed id, uint256 points);
     event WithdrawPoints(uint256 indexed id, uint256 points);
@@ -94,7 +97,7 @@ contract MintalioNFT is ERC1155 {
     //if someone owns 2 NFTs with id 1 they have 2 points
 
     address private _owner; // main owner of the contract
-    // address[] private _admin; // admin of the contract, owner can set admins TODO: later
+    address[] private _admin; // admin of the contract, owner can set admins TODO: later
     NFT[] private _nfts;
 
     mapping(uint256 => address) private _nftOwners;
@@ -114,6 +117,29 @@ contract MintalioNFT is ERC1155 {
         _;
     }
 
+    modifier onlyAdmin() {
+        for (uint i = 0; i < _admin.length; i++) {
+            if (msg.sender == _admin[i]) {
+                _;
+            }
+        }
+        revert Not_Contract_Owner();
+        _;
+    }
+
+    function setAdmin(address newAdmin) public onlyOwner {
+        _admin.push(newAdmin);
+    }
+
+    function removeAdmin(address adminToRemove) public onlyOwner {
+        for (uint i = 0; i < _admin.length; i++) {
+            if (adminToRemove == _admin[i]) {
+                _admin[i] = _admin[_admin.length - 1];
+                _admin.pop();
+            }
+        }
+    }
+
     function mint(address to) public {
         uint256 id = _nfts.length + 1;
 
@@ -126,7 +152,7 @@ contract MintalioNFT is ERC1155 {
         emit Mint(to);
     }
 
-    function addPoints(uint256 id, uint256 points) public onlyOwner {
+    function addPoints(uint256 id, uint256 points) public onlyOwner onlyAdmin {
         if (id <= 0 || id > _nfts.length) {
             revert Invalid_NFT_Id(id);
         }
@@ -141,7 +167,10 @@ contract MintalioNFT is ERC1155 {
         emit AddPoints(id, points);
     }
 
-    function withdrawPoints(uint256 id, uint256 points) public onlyOwner {
+    function withdrawPoints(
+        uint256 id,
+        uint256 points
+    ) public onlyOwner onlyAdmin {
         if (id <= 0 || id > _nfts.length) {
             revert Invalid_NFT_Id(id);
         }
@@ -177,6 +206,10 @@ contract MintalioNFT is ERC1155 {
 
     function owner() public view returns (address) {
         return _owner;
+    }
+
+    function admin() public view returns (address[] memory) {
+        return _admin;
     }
 
     function nftOwner(uint256 id) public view returns (address) {
