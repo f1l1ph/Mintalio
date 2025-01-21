@@ -81,6 +81,7 @@ contract MintalioNFT is ERC1155 {
     error Not_NFT_Owner();
     error Not_Enough_Points();
     error Invalid_NFT_Id(uint256 id);
+    error Cannot_Remove_Owner();
 
     //events
     event Mint(address indexed to);
@@ -108,6 +109,7 @@ contract MintalioNFT is ERC1155 {
     constructor(string memory _uri) ERC1155(_uri) {
         dataURI = bytes(_uri);
         _owner = msg.sender;
+        _admin.push(_owner);
     }
 
     modifier onlyOwner() {
@@ -132,6 +134,10 @@ contract MintalioNFT is ERC1155 {
     }
 
     function removeAdmin(address adminToRemove) public onlyOwner {
+        if (adminToRemove == _owner) {
+            revert Cannot_Remove_Owner();
+        }
+
         for (uint i = 0; i < _admin.length; i++) {
             if (adminToRemove == _admin[i]) {
                 _admin[i] = _admin[_admin.length - 1];

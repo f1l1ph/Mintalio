@@ -106,4 +106,13 @@ contract MintalioNft is Test {
         assert(nftLevel == NFTLevel.SILVER);
         assert(points == 100 && id == 1 && totalPoints == 100);
     }
+
+    function testCanAddAdmin() public {
+        vm.prank(deployerAddr);
+        mintalioNft.setAdmin(USER);
+
+        address[] memory admins = mintalioNft.admin();
+
+        assert(admins[0] == USER);
+    }
 }
