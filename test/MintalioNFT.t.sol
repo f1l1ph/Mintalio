@@ -113,6 +113,6 @@ contract MintalioNft is Test {
 
         address[] memory admins = mintalioNft.admin();
 
-        assert(admins[0] == USER);
+        assert(admins[1] == USER);
     }
 }

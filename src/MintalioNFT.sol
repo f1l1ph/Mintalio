@@ -73,7 +73,7 @@ contract MintalioNFT is ERC1155 {
         1024000 // OMNIPOTENT
     ];
 
-    //fungible tokens on id: 0
+    //fungible tokens on id: 0 //!later
 
     //errors
     error Not_Contract_Owner();
@@ -98,7 +98,7 @@ contract MintalioNFT is ERC1155 {
     //if someone owns 2 NFTs with id 1 they have 2 points
 
     address private _owner; // main owner of the contract
-    address[] private _admin; // admin of the contract, owner can set admins TODO: later
+    address[] private _admin; // admins of the contract, owner can set admins
     NFT[] private _nfts;
 
     mapping(uint256 => address) private _nftOwners;
@@ -120,12 +120,17 @@ contract MintalioNFT is ERC1155 {
     }
 
     modifier onlyAdmin() {
+        bool isAdmin = false;
+
         for (uint i = 0; i < _admin.length; i++) {
             if (msg.sender == _admin[i]) {
-                _;
+                isAdmin = true;
             }
         }
-        revert Not_Contract_Owner();
+
+        if (!isAdmin) {
+            revert Not_Contract_Admin();
+        }
         _;
     }
 
@@ -158,7 +163,7 @@ contract MintalioNFT is ERC1155 {
         emit Mint(to);
     }
 
-    function addPoints(uint256 id, uint256 points) public onlyOwner onlyAdmin {
+    function addPoints(uint256 id, uint256 points) public onlyAdmin {
         if (id <= 0 || id > _nfts.length) {
             revert Invalid_NFT_Id(id);
         }
@@ -173,10 +178,7 @@ contract MintalioNFT is ERC1155 {
         emit AddPoints(id, points);
     }
 
-    function withdrawPoints(
-        uint256 id,
-        uint256 points
-    ) public onlyOwner onlyAdmin {
+    function withdrawPoints(uint256 id, uint256 points) public onlyAdmin {
         if (id <= 0 || id > _nfts.length) {
             revert Invalid_NFT_Id(id);
         }
