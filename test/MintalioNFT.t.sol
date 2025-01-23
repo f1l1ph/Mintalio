@@ -49,7 +49,7 @@ contract MintalioNft is Test {
         (uint256 id, uint256 points, uint256 totalPoints, NFTLevel nftLevel) = mintalioNft.nfts(1);
         assert(points == 0 && id == 1 && totalPoints == 0);
 
-        vm.prank(deployerAddr); // invoking the owner because addPoints is onlyOwner
+        vm.prank(deployerAddr); // invoking the owner because addPoints is onlyAdmin
 
         mintalioNft.addPoints(1, 1);
         (id, points, totalPoints, nftLevel) = mintalioNft.nfts(1);
@@ -114,5 +114,29 @@ contract MintalioNft is Test {
         address[] memory admins = mintalioNft.admin();
 
         assert(admins[1] == USER);
+    }
+
+    function testCanRemoveAdmin() public{
+        vm.prank(deployerAddr);
+        mintalioNft.setAdmin(USER);
+
+        mintalioNft.mint(USER);
+
+        address[] memory admins = mintalioNft.admin();
+
+        assert(admins[1] == USER);
+
+        vm.prank(deployerAddr);
+        mintalioNft.removeAdmin(USER);
+
+        admins = mintalioNft.admin();
+
+        assert(admins.length == 1);
+
+        vm.prank(USER);
+
+        //expect revert from addPoints cuz it's onlyAdmin
+        vm.expectRevert(MintalioNFT.Not_Contract_Admin.selector);
+        mintalioNft.addPoints(1, 100);
     }
 }
