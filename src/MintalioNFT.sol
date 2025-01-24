@@ -193,6 +193,36 @@ contract MintalioNFT is ERC1155 {
         emit WithdrawPoints(id, points);
     }
 
+    function movePoints(
+        uint256 fromId,
+        uint256 toId,
+        uint256 points
+    ) public onlyAdmin {
+        if (
+            fromId <= 0 ||
+            fromId > _nfts.length ||
+            toId <= 0 ||
+            toId > _nfts.length
+        ) {
+            revert Invalid_NFT_Id(fromId);
+        }
+
+        fromId = fromId - 1;
+        toId = toId - 1;
+
+        if (msg.sender != _nftOwners[fromId]) {
+            revert Not_NFT_Owner();
+        }
+
+        if (_nfts[fromId].points < points) {
+            revert Not_Enough_Points();
+        }
+        //require owner of fromId to sign this transactions
+
+        _nfts[fromId].points -= points;
+        _nfts[toId].points += points;
+    }
+
     //add function trade points
     //when users trade points, total points are not increased or decreased
 
