@@ -139,4 +139,25 @@ contract MintalioNft is Test {
         vm.expectRevert(MintalioNFT.Not_Contract_Admin.selector);
         mintalioNft.addPoints(1, 100);
     }
+
+    function testCanSendPoints() public{
+        vm.prank(USER);
+        mintalioNft.mint(USER);
+        mintalioNft.mint(USER);
+
+        vm.prank(deployerAddr);
+        mintalioNft.addPoints(1, 100);
+
+        (uint256 id, uint256 points, uint256 totalPoints, NFTLevel nftLevel) = mintalioNft.nfts(1);
+        assert(points == 100 && id == 1 && totalPoints == 100);
+
+        vm.prank(USER);
+        mintalioNft.movePoints(1, 3, 50);
+
+        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(1);
+        assert(points == 50 && id == 1 && totalPoints == 100);
+
+        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(2);
+        assert(points == 50 && id == 2 && totalPoints == 0);
+    }
 }

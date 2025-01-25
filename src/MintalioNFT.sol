@@ -109,6 +109,7 @@ contract MintalioNFT is ERC1155 {
     constructor(string memory _uri) ERC1155(_uri) {
         dataURI = bytes(_uri);
         _owner = msg.sender;
+        _admin = new address[](0);
         _admin.push(_owner);
     }
 
@@ -193,11 +194,7 @@ contract MintalioNFT is ERC1155 {
         emit WithdrawPoints(id, points);
     }
 
-    function movePoints(
-        uint256 fromId,
-        uint256 toId,
-        uint256 points
-    ) public onlyAdmin {
+    function movePoints(uint256 fromId, uint256 toId, uint256 points) public {
         if (
             fromId <= 0 ||
             fromId > _nfts.length ||
