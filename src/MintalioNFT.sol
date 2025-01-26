@@ -3,6 +3,7 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "forge-std/console.sol";
 
 /**
  * @title MintalioNFT
@@ -73,6 +74,8 @@ contract MintalioNFT is ERC1155 {
         1024000 // OMNIPOTENT
     ];
 
+    //TODO: remove the -1 on ids
+
     //fungible tokens on id: 0 //!later
 
     //errors
@@ -102,7 +105,6 @@ contract MintalioNFT is ERC1155 {
     NFT[] private _nfts;
 
     mapping(uint256 => address) private _nftOwners;
-    mapping(uint256 => string) private _customUris;
 
     bytes private dataURI; //URI template
 
@@ -153,22 +155,21 @@ contract MintalioNFT is ERC1155 {
     }
 
     function mint(address to) public {
-        uint256 id = _nfts.length + 1;
+        uint256 id = _nfts.length;
+        console.log("Minting NFT with id: %d", id);
 
         _nfts.push(NFT(id, 0, 0, NFTLevel.BRONZE));
         _nftOwners[id] = to;
 
         _mint(to, id, 1, dataURI);
-        _customUris[id] = string(dataURI);
 
         emit Mint(to);
     }
 
     function addPoints(uint256 id, uint256 points) public onlyAdmin {
-        if (id <= 0 || id > _nfts.length) {
+        if (id < 0 || id > _nfts.length) {
             revert Invalid_NFT_Id(id);
         }
-        id = id - 1;
 
         //update level
         _nfts[id].level = getNFTLevel(_nfts[id].totalPoints + points);
@@ -180,11 +181,10 @@ contract MintalioNFT is ERC1155 {
     }
 
     function withdrawPoints(uint256 id, uint256 points) public onlyAdmin {
-        if (id <= 0 || id > _nfts.length) {
+        if (id < 0 || id > _nfts.length) {
             revert Invalid_NFT_Id(id);
         }
 
-        id = id - 1;
         if (_nfts[id].points < points) {
             revert Not_Enough_Points();
         }
@@ -204,10 +204,7 @@ contract MintalioNFT is ERC1155 {
             revert Invalid_NFT_Id(fromId);
         }
 
-        fromId = fromId - 1;
-        toId = toId - 1;
-
-        if (msg.sender != _nftOwners[fromId]) {
+        if (msg.sender != _nftOwners[fromId - 1]) {
             revert Not_NFT_Owner();
         }
 
@@ -226,10 +223,9 @@ contract MintalioNFT is ERC1155 {
     function nfts(
         uint256 id
     ) public view returns (uint256, uint256, uint256, NFTLevel) {
-        if (id <= 0 || id > _nfts.length) {
+        if (id < 0 || id > _nfts.length) {
             revert Invalid_NFT_Id(id);
         }
-        id = id - 1;
 
         return (
             _nfts[id].id,
@@ -255,7 +251,6 @@ contract MintalioNFT is ERC1155 {
         if (id <= 0 || id > _nfts.length) {
             revert Invalid_NFT_Id(id);
         }
-        id = id - 1;
         return _nfts[id].points;
     }
 
@@ -263,15 +258,10 @@ contract MintalioNFT is ERC1155 {
         if (id <= 0 || id > _nfts.length) {
             revert Invalid_NFT_Id(id);
         }
-        id = id - 1;
         return _nfts[id].totalPoints;
     }
 
     function uri(uint256 tokenId) public view override returns (string memory) {
-        if (bytes(_customUris[tokenId]).length > 0) {
-            return _customUris[tokenId];
-        }
-
         return super.uri(tokenId);
     }
 

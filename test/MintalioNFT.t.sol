@@ -39,60 +39,76 @@ contract MintalioNft is Test {
         vm.prank(user2);
         mintalioNft.mint(user2);
 
-        assert(mintalioNft.balanceOf(user2, 1) > 0);
+        assert(mintalioNft.balanceOf(user2, 0) > 0);
+    }
+
+    function testCanMintAndBeNFTOwner() public {
+        //testing multiple mints
+        vm.prank(USER);
+        mintalioNft.mint(USER);
+        mintalioNft.mint(USER);
+        mintalioNft.mint(USER);
+
+        vm.prank(deployerAddr);
+        mintalioNft.addPoints(1, 100);
+
+        assert(mintalioNft.nftOwner(0) == USER);
+        assert(mintalioNft.nftOwner(1) == USER);
+        assert(mintalioNft.nftOwner(2) == USER);
     }
 
     function testCanAddPoints() public {
         vm.prank(USER); // invoking user because users can mint
         mintalioNft.mint(USER);
 
-        (uint256 id, uint256 points, uint256 totalPoints, NFTLevel nftLevel) = mintalioNft.nfts(1);
-        assert(points == 0 && id == 1 && totalPoints == 0);
+        (uint256 id, uint256 points, uint256 totalPoints, NFTLevel nftLevel) = mintalioNft.nfts(0);
+        assert(points == 0 && id == 0 && totalPoints == 0);
 
         vm.prank(deployerAddr); // invoking the owner because addPoints is onlyAdmin
 
-        mintalioNft.addPoints(1, 1);
-        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(1);
+        mintalioNft.addPoints(0, 1);
+        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(0);
 
-        assert(points == 1 && id == 1 && totalPoints == 1);
+        assert(points == 1 && id == 0 && totalPoints == 1);
     }
 
     function testCanTakePoints() public {
         vm.prank(USER);
         mintalioNft.mint(USER);
 
-        (uint256 id, uint256 points, uint256 totalPoints, NFTLevel nftLevel) = mintalioNft.nfts(1);
-        assert(points == 0 && id == 1 && totalPoints == 0);
+        (uint256 id, uint256 points, uint256 totalPoints, NFTLevel nftLevel) = mintalioNft.nfts(0);
+        assert(points == 0 && id == 0 && totalPoints == 0);
 
         vm.prank(deployerAddr);
 
-        mintalioNft.addPoints(1, 1);
-        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(1);
+        mintalioNft.addPoints(0, 1);
+        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(0);
 
-        assert(points == 1 && id == 1 && totalPoints == 1);
+        assert(points == 1 && id == 0 && totalPoints == 1);
 
         console.log("Points before withdrawal: ", points);
 
         vm.prank(deployerAddr);
 
-        mintalioNft.withdrawPoints(1, 1);
-        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(1);
+        mintalioNft.withdrawPoints(0, 1);
+        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(0);
 
-        assert(points == 0 && id == 1 && totalPoints == 1);
+        assert(points == 0 && id == 0 && totalPoints == 1);
     }
 
     function testHaveLevel() public{
         vm.prank(USER);
         mintalioNft.mint(USER);
 
-        (uint256 id, uint256 points, uint256 totalPoints, NFTLevel nftLevel) = mintalioNft.nfts(1);
+        (uint256 id, uint256 points, uint256 totalPoints, NFTLevel nftLevel) = mintalioNft.nfts(0);
 
         assert(nftLevel == NFTLevel.BRONZE);
-        assert(points == 0 && id == 1 && totalPoints == 0);
+        assert(points == 0 && id == 0 && totalPoints == 0);
     }
 
     function testHaveHigherLevel() public{
         vm.prank(USER);
+        mintalioNft.mint(USER);
         mintalioNft.mint(USER);
 
         (uint256 id, uint256 points, uint256 totalPoints, NFTLevel nftLevel) = mintalioNft.nfts(1);
@@ -144,6 +160,7 @@ contract MintalioNft is Test {
         vm.prank(USER);
         mintalioNft.mint(USER);
         mintalioNft.mint(USER);
+        mintalioNft.mint(USER);
 
         vm.prank(deployerAddr);
         mintalioNft.addPoints(1, 100);
@@ -152,7 +169,7 @@ contract MintalioNft is Test {
         assert(points == 100 && id == 1 && totalPoints == 100);
 
         vm.prank(USER);
-        mintalioNft.movePoints(1, 3, 50);
+        mintalioNft.movePoints(1, 2, 50);
 
         (id, points, totalPoints, nftLevel) = mintalioNft.nfts(1);
         assert(points == 50 && id == 1 && totalPoints == 100);
