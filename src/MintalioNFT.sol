@@ -74,8 +74,6 @@ contract MintalioNFT is ERC1155 {
         1024000 // OMNIPOTENT
     ];
 
-    //TODO: remove the -1 on ids
-
     //fungible tokens on id: 0 //!later
 
     //errors
@@ -195,6 +193,7 @@ contract MintalioNFT is ERC1155 {
     }
 
     function movePoints(uint256 fromId, uint256 toId, uint256 points) public {
+        //when users trade points, total points are not increased or decreased
         if (
             fromId <= 0 ||
             fromId > _nfts.length ||
@@ -211,14 +210,11 @@ contract MintalioNFT is ERC1155 {
         if (_nfts[fromId].points < points) {
             revert Not_Enough_Points();
         }
-        //require owner of fromId to sign this transactions
+        //TODO: require owner of fromId to sign this transactions
 
         _nfts[fromId].points -= points;
         _nfts[toId].points += points;
     }
-
-    //add function trade points
-    //when users trade points, total points are not increased or decreased
 
     function nfts(
         uint256 id

@@ -177,4 +177,17 @@ contract MintalioNft is Test {
         (id, points, totalPoints, nftLevel) = mintalioNft.nfts(2);
         assert(points == 50 && id == 2 && totalPoints == 0);
     }
+
+    function testCannotSendPoints() public{
+        vm.prank(USER);
+        mintalioNft.mint(USER);
+        mintalioNft.mint(USER);
+
+        vm.prank(deployerAddr);
+        mintalioNft.addPoints(1, 49);
+
+        vm.prank(USER);
+        vm.expectRevert(MintalioNFT.Not_Enough_Points.selector);
+        mintalioNft.movePoints(1, 2, 50);
+    }
 }
