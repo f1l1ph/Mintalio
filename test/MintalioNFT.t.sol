@@ -190,4 +190,6 @@ contract MintalioNft is Test {
         vm.expectRevert(MintalioNFT.Not_Enough_Points.selector);
         mintalioNft.movePoints(1, 2, 50);
     }
+
+    //write test for setMetadata()
 }

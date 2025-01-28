@@ -216,6 +216,10 @@ contract MintalioNFT is ERC1155 {
         _nfts[toId].points += points;
     }
 
+    function setURI(string memory newURI) public onlyOwner {
+        dataURI = bytes(newURI);
+    }
+
     function nfts(
         uint256 id
     ) public view returns (uint256, uint256, uint256, NFTLevel) {

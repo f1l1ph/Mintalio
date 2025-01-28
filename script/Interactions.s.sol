@@ -16,7 +16,7 @@ contract MintNft is Script {
             block.chainid
         );
 
-        // mintNft(mostRecentlyDeployed);
+        mintNft(mostRecentlyDeployed);
     }
 
     function mintNft(address contractAddress) public {
