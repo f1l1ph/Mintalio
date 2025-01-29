@@ -192,4 +192,18 @@ contract MintalioNft is Test {
     }
 
     //write test for setMetadata()
+    function testCanSetURI() public{
+        mintalioNft.mint(USER);
+
+        vm.prank(deployerAddr);
+        mintalioNft.setURI("some-uri.com", 0);
+
+        string memory expectedUri = "some-uri.com";
+        string memory actualUri = mintalioNft.uri(0);
+
+        assert(
+            keccak256(abi.encodePacked(expectedUri)) ==
+                keccak256(abi.encodePacked(actualUri))
+        );
+    }
 }

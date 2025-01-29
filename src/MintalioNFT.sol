@@ -94,6 +94,7 @@ contract MintalioNFT is ERC1155 {
         uint256 id,
         uint256 value
     );
+    event URIChanged(string newURI, uint256 id);
 
     //TODO: consider: points can be the nfts, if someone owns 1 NFT with id 1 they have 1 point and
     //if someone owns 2 NFTs with id 1 they have 2 points
@@ -103,6 +104,7 @@ contract MintalioNFT is ERC1155 {
     NFT[] private _nfts;
 
     mapping(uint256 => address) private _nftOwners;
+    mapping(uint256 => string) private _nftURIs; // URI of NFT, only visible if set in setURI function
 
     bytes private dataURI; //URI template
 
@@ -216,8 +218,9 @@ contract MintalioNFT is ERC1155 {
         _nfts[toId].points += points;
     }
 
-    function setURI(string memory newURI) public onlyOwner {
-        dataURI = bytes(newURI);
+    function setURI(string memory newURI, uint256 id) public onlyOwner {
+        _nftURIs[id] = newURI;
+        emit URIChanged(newURI, id);
     }
 
     function nfts(
@@ -262,6 +265,12 @@ contract MintalioNFT is ERC1155 {
     }
 
     function uri(uint256 tokenId) public view override returns (string memory) {
+        if (tokenId < 0 || tokenId > _nfts.length) {
+            revert Invalid_NFT_Id(tokenId);
+        }
+        if (bytes(_nftURIs[tokenId]).length > 0) {
+            return _nftURIs[tokenId];
+        }
         return super.uri(tokenId);
     }
 
