@@ -191,7 +191,6 @@ contract MintalioNft is Test {
         mintalioNft.movePoints(1, 2, 50);
     }
 
-    //write test for setMetadata()
     function testCanSetURI() public{
         mintalioNft.mint(USER);
 

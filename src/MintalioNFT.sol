@@ -74,8 +74,6 @@ contract MintalioNFT is ERC1155 {
         1024000 // OMNIPOTENT
     ];
 
-    //fungible tokens on id: 0 //!later
-
     //errors
     error Not_Contract_Owner();
     error Not_Contract_Admin();
@@ -197,9 +195,9 @@ contract MintalioNFT is ERC1155 {
     function movePoints(uint256 fromId, uint256 toId, uint256 points) public {
         //when users trade points, total points are not increased or decreased
         if (
-            fromId <= 0 ||
+            fromId < 0 ||
             fromId > _nfts.length ||
-            toId <= 0 ||
+            toId < 0 ||
             toId > _nfts.length
         ) {
             revert Invalid_NFT_Id(fromId);
@@ -219,6 +217,9 @@ contract MintalioNFT is ERC1155 {
     }
 
     function setURI(string memory newURI, uint256 id) public onlyOwner {
+        if (id < 0 || id > _nfts.length) {
+            revert Invalid_NFT_Id(id);
+        }
         _nftURIs[id] = newURI;
         emit URIChanged(newURI, id);
     }
@@ -251,14 +252,14 @@ contract MintalioNFT is ERC1155 {
     }
 
     function get_points(uint256 id) public view returns (uint256) {
-        if (id <= 0 || id > _nfts.length) {
+        if (id < 0 || id > _nfts.length) {
             revert Invalid_NFT_Id(id);
         }
         return _nfts[id].points;
     }
 
     function get_total_points(uint256 id) public view returns (uint256) {
-        if (id <= 0 || id > _nfts.length) {
+        if (id < 0 || id > _nfts.length) {
             revert Invalid_NFT_Id(id);
         }
         return _nfts[id].totalPoints;
