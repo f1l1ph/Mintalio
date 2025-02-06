@@ -34,6 +34,7 @@ contract BasicFlowTest is Test {
         vm.prank(USER);
         mintalioNft.mint(USER);
 
+        vm.prank(deployerAddr);
         mintalioNft.setURI("some-uri.com", 0);
 
         assert(
@@ -41,6 +42,7 @@ contract BasicFlowTest is Test {
                 keccak256(abi.encodePacked("some-uri.com"))
         );
 
+        vm.prank(deployerAddr);
         mintalioNft.addPoints(0, 100);
         (
             uint256 id,
@@ -52,6 +54,28 @@ contract BasicFlowTest is Test {
         assert(points == 100);
         assert(totalPoints == 100);
         assert(nftLevel == NFTLevel.BRONZE);
+        assert(id == 0);
+
+        for (uint i = 0; i < 100; i++) {
+            mintalioNft.mint(USER);
+        }
+        vm.prank(deployerAddr);
+        mintalioNft.addPoints(0, 1000);
+
+        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(0); //do more assertions here
+        vm.prank(USER);
+        mintalioNft.movePoints(0, 1, 1000);
+
+        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(1);
+        assert(points == 1000);
+        assert(totalPoints == 1000);
+        assert(nftLevel == NFTLevel.DIAMOND);
+        assert(id == 1);
+
+        (id, points, totalPoints, nftLevel) = mintalioNft.nfts(0);
+        assert(points == 0);
+        assert(totalPoints == 1000);
+        assert(nftLevel == NFTLevel.DIAMOND);
         assert(id == 0);
     }
 }
