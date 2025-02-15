@@ -55,9 +55,9 @@ contract BasicFlowTest is Test {
 
         assert(points == 50 && totalPoints == 50 && id == 0);
 
-        // for (uint i = 0; i < 100; i++) {
-        //     mintalioNft.mint(USER);
-        // }
+        for (uint i = 0; i < 100; i++) {
+            mintalioNft.mint(USER);
+        }
         vm.prank(deployerAddr);
         mintalioNft.addPoints(0, 50);
 
@@ -69,7 +69,7 @@ contract BasicFlowTest is Test {
         mintalioNft.movePoints(0, 1, 100);
 
         (id, points, totalPoints, nftLevel) = mintalioNft.nfts(1);
-        assert(points == 100 && totalPoints == 100 && id == 1);
+        assert(points == 100 && totalPoints == 0 && id == 1);
 
         (id, points, totalPoints, nftLevel) = mintalioNft.nfts(0);
         assert(points == 0 && totalPoints == 100 && id == 0);

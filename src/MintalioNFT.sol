@@ -193,7 +193,7 @@ contract MintalioNFT is ERC1155 {
     }
 
     function movePoints(uint256 fromId, uint256 toId, uint256 points) public {
-        //when users trade points, total points are not increased or decreased
+        // when users trade points, total points are not increased or decreased
         if (
             fromId < 0 ||
             fromId > _nfts.length ||
@@ -203,7 +203,7 @@ contract MintalioNFT is ERC1155 {
             revert Invalid_NFT_Id(fromId);
         }
 
-        if (msg.sender != _nftOwners[fromId - 1]) {
+        if (msg.sender != _nftOwners[fromId]) {
             revert Not_NFT_Owner();
         }
 
